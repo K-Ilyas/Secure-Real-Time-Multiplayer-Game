@@ -9,14 +9,35 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 
 const fccTestingRoutes = require('./routes/fcctesting.js');
+
 const runner = require('./test-runner.js');
+
 const { platform } = require('os');
+
 const { default: Player } = require('./public/Player.mjs');
+
+const Collectible = require('./public/Collectible.mjs');
+
 
 const app = express();
 const server = http.createServer(app);
-var palyers = [];
+var players = [];
+var token = null;
 
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+
+function verifyToken() {
+  if (token == null) {
+    let xPos = Math.round(getRandomArbitrary(5, 5 + 630 - 30));
+    xPos -= xPos % 10;
+    let yPos = Math.round(getRandomArbitrary(50, 50 + 425 - 20));
+    yPos -= yPos % 10;
+    token = new Collectible({ "x": xPos, "y": yPos, "value": Math.round(getRandomArbitrary(1, 3)), "id": (new Date()).getTime() });
+  }
+}
 
 app.use('/public', express.static(process.cwd() + '/public'));
 app.use('/assets', express.static(process.cwd() + '/assets'));
@@ -45,21 +66,28 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log("disconnect", socket.id);
-    palyers = palyers.filter((player) => player.id != socket.id);
-    io.emit('send changes', palyers);
+    players = players.filter((player) => player.id != socket.id);
+    verifyToken();
+    io.emit('send changes', { "players": players, "collectible": token });
   });
 
-  socket.on("change coordinates", (player) => {
-    let palyerUpdate = JSON.parse(player);
-    let index = palyers.findIndex((e) => e.id == palyerUpdate.id);
-    palyers[index] = palyerUpdate;
-    io.emit('send changes', palyers);
+  socket.on("change coordinates", ({ player, flag }) => {
+    let index = players.findIndex((e) => e.id == player.id);
+    players[index] = player;
+    if (flag)
+      token = null;
+    verifyToken();
+    io.emit('send changes', { "players": players, "collectible": token });
   });
 
   socket.on("new player", (player) => {
     console.log(player);
-    palyers.push(JSON.parse(player));
-    io.emit('send changes', palyers);
+    players.push(JSON.parse(player));
+
+    verifyToken();
+
+
+    io.emit('send changes', { "players": players, "collectible": token });
   });
 
 });

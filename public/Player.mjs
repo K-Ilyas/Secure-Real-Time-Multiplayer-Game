@@ -26,6 +26,11 @@ class Player {
 
   collision(item) {
 
+    return !(this.x + 40 < item.x ||
+      this.x > item.x + 30 ||
+      this.y + 40 < item.y ||
+      this.y > item.y + 20);
+
   }
 
   calculateRank(arr) {
@@ -40,10 +45,9 @@ class Player {
 
     let StartIndex = players.findIndex((e) => e.score == this.score);
 
-    console.log(count,index);
+    console.log(count, index);
 
-    return  (count != 1 ? StartIndex + count : index +  1);
-
+    return `Rank: ${count != 1 ? StartIndex + count : index + 1} / ${players.length}`;
   }
 
 }
