@@ -1,5 +1,35 @@
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  margin: 20px;
+  background-color: rgb(245, 245, 245);
+  margin: 0;
+}
+
+#title {
+  font-family: "Elsie", cursive;
+  font-size: 1.2rem;
+  margin: 0 auto;
+  padding: 0;
+}
+
+#title::first-letter {
+  font-size: 2.5rem;
+  vertical-align: sub;
+  text-decoration: underline;
+  color: rgb(242, 75, 75);
+}
+
+#navabr {
+  padding: 0;
+  background: linear-gradient( 109.6deg, rgba(156, 252, 248, 1) 11.2%,  rgba(110, 123, 251, 1) 91.1%);
+  border-bottom: 1px solid rgb(208, 212, 213);
+  margin-bottom: 2rem;
+  box-shadow: 4px 0px 5px 3px rgb(135, 148, 153);
+  text-align: center;
+  padding: 10px;
 }
 
 code {
@@ -8,6 +38,8 @@ code {
 
 canvas {
   margin: auto;
+  background-color: rgb(223, 255, 254);
+  box-shadow: 2px 2px 5px 1px rgb(135, 148, 153), -2px 2px 5px 1px rgb(135, 148, 153), -2px -2px 5px 1px rgb(135, 148, 153), 2px -2px 5px 1px rgb(135, 148, 153);
 }
 
 .container {
