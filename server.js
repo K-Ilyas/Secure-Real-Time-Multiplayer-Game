@@ -6,7 +6,11 @@ const http = require('http');
 const expect = require('chai');
 const socketIo = require('socket.io');
 
+
 const cors = require('cors');
+
+const helmet = require("helmet");
+const nocache = require('nocache');
 
 const fccTestingRoutes = require('./routes/fcctesting.js');
 
@@ -39,6 +43,8 @@ function verifyToken() {
   }
 }
 
+
+
 app.use('/public', express.static(process.cwd() + '/public'));
 app.use('/assets', express.static(process.cwd() + '/assets'));
 
@@ -48,6 +54,29 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //For FCC testing purposes and enables user to connect from outside the hosting platform
 app.use(cors({ origin: '*' }));
 
+app.use(helmet());
+
+// Prevent cross-site scripting (XSS) attacks
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"]
+    }
+  },
+  xssFilter: true
+}));
+
+app.use(nocache());
+
+app.use((req, res, next) => {
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('pragma', 'no-cache');
+  res.setHeader('x-powered-by','PHP 7.4.3');
+  next();
+});
+// Prevent client-side caching
 const io = socketIo(server, {
   cors: {
     methods: ["GET", "POST"]
