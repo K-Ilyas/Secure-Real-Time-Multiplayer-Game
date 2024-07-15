@@ -42,3 +42,8 @@ Make sure that your game is secure! Include these security measures:
 - ✅ Prevent cross-site scripting (XSS) attacks.
 - ✅ Nothing from the website is cached in the client.
 - ✅ The headers say that the site is powered by "PHP 7.4.3" even though it isn't (as a security measure).
+
+### Demo 
+---
+
+[Demo](https://replit.com/@K-Ilyas/Secure-Real-Time-Multiplayer-Game)
