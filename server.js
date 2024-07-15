@@ -73,7 +73,7 @@ app.use(nocache());
 app.use((req, res, next) => {
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('pragma', 'no-cache');
-  res.setHeader('x-powered-by','PHP 7.4.3');
+  res.setHeader('x-powered-by', 'PHP 7.4.3');
   next();
 });
 // Prevent client-side caching
@@ -97,7 +97,7 @@ io.on('connection', (socket) => {
     console.log("disconnect", socket.id);
     players = players.filter((player) => player.id != socket.id);
     verifyToken();
-    io.emit('send changes', { "players": players, "collectible": token });
+    io.emit('send changes', { "players": players, "collectible": token , "done": false });
   });
 
   socket.on("change coordinates", ({ player, flag }) => {
@@ -106,7 +106,16 @@ io.on('connection', (socket) => {
     if (flag)
       token = null;
     verifyToken();
-    io.emit('send changes', { "players": players, "collectible": token });
+    io.emit('send changes', { "players": players, "collectible": token ,"done": false });
+  });
+
+
+  socket.on("i win", ({ player }) => {
+    let index = players.findIndex((e) => e.id == player.id);
+    players[index] = player;
+    token = null;
+    verifyToken();
+    io.emit('send changes', { "players": players, "collectible": token, "done": true });
   });
 
   socket.on("new player", (player) => {
@@ -116,7 +125,7 @@ io.on('connection', (socket) => {
     verifyToken();
 
 
-    io.emit('send changes', { "players": players, "collectible": token });
+    io.emit('send changes', { "players": players, "collectible": token, "done":false });
   });
 
 });

@@ -38,18 +38,17 @@ socket.on('client ID', (id) => {
 });
 
 
-socket.on("send changes", ({ players, collectible }) => {
-    console.log(players,collectible);
+socket.on("send changes", ({ players, collectible, done }) => {
+    console.log(players, collectible);
     if (!isRedrawing) {
         isRedrawing = true;
         drawStaticElements(players);
         let loadedCount = 0;
         players.forEach(playerData => {
 
-            if (player.collision(collectible)) {
+            if (player.collision(collectible) && !done) {
                 player.score += collectible["value"];
                 socket.emit("change coordinates", { "player": player, "flag": true });
-
             }
 
             if (collectible) {
@@ -61,6 +60,24 @@ socket.on("send changes", ({ players, collectible }) => {
                 };
             }
 
+            if (done && playerData.id == player.id) {
+                console.log("your data", playerData["score"]);
+                if (playerData["score"] >= 25) {
+                    context.font = "1000 20px 'Press Start 2P', system-ui";
+                    context.fillStyle = "rgb(242, 75, 75)";
+                    context.fillText("You win! Restart and try again", 160, 80);
+
+                } else {
+                    context.font = "1000 20px 'Press Start 2P', system-ui";
+                    context.fillStyle = "rgb(242, 75, 75)";
+                    context.fillText("You lost! Restart and try again", 160, 80);
+                }
+
+                document.removeEventListener("keydown", handleClickDown);
+                document.removeEventListener("keyup", handleClickDown);
+
+                socket.disconnect();
+            }
 
             let playerImg = new Image();
             playerImg.src = playerData.id !== player.id ? '../assets/cropped_image_red.png' : '../assets/cropped_image.png';
@@ -105,24 +122,31 @@ function handleKeyPressed(key) {
     if (change && (x != player["x"] || y != player["y"])) {
         if (player.collision(collectibleVal)) {
             player.score += collectibleVal["value"];
-            socket.emit("change coordinates", { "player": player, "flag": true });
+            if (player.score >= 25) {
+                socket.emit("i win", { "player": player });
+            } else {
+                socket.emit("change coordinates", { "player": player, "flag": true });
+            }
 
         } else
             socket.emit("change coordinates", { "player": player, "flag": false });
     }
 }
+const handleClickDown = (e) => {
+    pressedKeys[e.key] = true;
+    handleKeyPressed(e.key);
+};
+
+const handleClickUp = (e) => {
+    pressedKeys[e.key] = false;
+};
+
 
 
 document.addEventListener("DOMContentLoaded", (e) => {
-    document.addEventListener("keydown", (e) => {
-        pressedKeys[e.key] = true;
-        handleKeyPressed(e.key);
-    });
-
-    document.addEventListener("keyup", (e) => {
-        pressedKeys[e.key] = false;
-    })
-})
+    document.addEventListener("keydown", handleClickDown);
+    document.addEventListener("keyup", handleClickUp);
+});
 
 
 
